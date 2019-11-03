@@ -25,6 +25,7 @@ SOURCES += \
         mounts_list.cpp \
         path_widget.cpp \
         search_bar.cpp \
+        settings_dialog.cpp \
         utility.cpp
 
 RESOURCES +=
@@ -53,5 +54,7 @@ HEADERS += \
     mounts_list.hpp \
     path_widget.hpp \
     search_bar.hpp \
+    settings_dialog.hpp \
+    settings_t.hpp \
     string_dialog.hpp \
     utility.hpp

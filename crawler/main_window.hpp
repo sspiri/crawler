@@ -11,7 +11,6 @@
 #include "search_bar.hpp"
 #include "files_list.hpp"
 #include "path_widget.hpp"
-
 #include "filesystem.hpp"
 
 
@@ -21,6 +20,8 @@ private slots:
         if(QFile::exists(path->edit->text()))
             files->enter(path->edit->text());
     }
+
+    void open_settings();
 
 public:
     explicit main_window(const QString& current);
@@ -34,8 +35,10 @@ private:
     files_list* files;
 
     void setup_connections();
-    void set_menu_bar();
+    void setup_menu_bar();
     void setup_layout();
+
+    void apply_settings();
 };
 
 

@@ -1,6 +1,8 @@
 #include <QMenuBar>
 #include <QShortcut>
 
+#include "settings_t.hpp"
+#include "settings_dialog.hpp"
 #include "main_window.hpp"
 
 
@@ -16,16 +18,17 @@ main_window::main_window(const QString& current)
     splitter->setOrientation(Qt::Horizontal);
     splitter->setStretchFactor(1, 2);
 
-    set_menu_bar();
+    setup_menu_bar();
     setup_connections();
     setup_layout();
 }
 
 
-void main_window::set_menu_bar(){
-    auto* bar = menuBar();
+void main_window::setup_menu_bar(){
+    QMenu* menu = menuBar()->addMenu("File");
 
-    QMenu* menu = bar->addMenu("File");
+    connect(menu->addAction("Settings..."), &QAction::triggered, this, &main_window::open_settings);
+    menu->addSeparator();
     connect(menu->addAction("Quit"), &QAction::triggered, this, &QMainWindow::close);
 }
 
@@ -58,4 +61,16 @@ void main_window::setup_layout(){
     grid->addWidget(path, 2, 0);
 
     central->setLayout(grid);
+}
+
+
+void main_window::open_settings(){
+    auto* dialog = new settings_dialog{files->settings, this};
+
+    if(dialog->exec() == QDialog::Accepted){
+        files->settings = dialog->get_settings();
+        files->setup_files_list();
+    }
+
+    dialog->deleteLater();
 }

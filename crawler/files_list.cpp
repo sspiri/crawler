@@ -104,7 +104,10 @@ void files_list::show_context_menu(const QPoint& point){
 
         connect(menu->addAction("Copy"), &QAction::triggered, this, &files_list::on_copy);
         connect(menu->addAction("Cut"), &QAction::triggered, this, &files_list::on_cut);
+
+        menu->addSeparator();
         connect(menu->addAction("Remove"), &QAction::triggered, this, &files_list::remove);
+        connect(menu->addAction("Move to trash"), &QAction::triggered, this, &files_list::move_to_trash);
 
         menu->addSeparator();
 
@@ -120,7 +123,10 @@ void files_list::show_context_menu(const QPoint& point){
         menu->addSeparator();
         connect(menu->addAction("Copy"), &QAction::triggered, this, &files_list::on_copy);
         connect(menu->addAction("Cut"), &QAction::triggered, this, &files_list::on_cut);
+
+        menu->addSeparator();
         connect(menu->addAction("Remove"), &QAction::triggered, this, &files_list::remove);
+        connect(menu->addAction("Move to trash"), &QAction::triggered, this, &files_list::move_to_trash);
 
         menu->addSeparator();
         connect(menu->addAction("Open files..."), &QAction::triggered, std::bind(&files_list::open_file, this, files));
@@ -247,22 +253,22 @@ void files_list::setup_columns(){
     QStringList header_names{"Name"};
     int count = 1;
 
-    if(headers & headers_mask::modified){
+    if(settings.headers & headers_mask::modified){
         ++count;
         header_names.push_back("Modified");
     }
 
-    if(headers & headers_mask::size){
+    if(settings.headers & headers_mask::size){
         ++count;
         header_names.push_back("Size");
     }
 
-    if(headers & headers_mask::type){
+    if(settings.headers & headers_mask::type){
         ++count;
         header_names.push_back("Type");
     }
 
-    if(headers & headers_mask::path){
+    if(settings.headers & headers_mask::path){
         ++count;
         header_names.push_back("Path");
     }
@@ -311,6 +317,29 @@ void files_list::cut(){
     auto list = clipboard->property(clipboard_operation.c_str()).toStringList();
 
     auto* operation = new move_operation{list, current_dir.absolutePath(), this};
+    auto* progress = new file_operation_progress{operation, list.size()};
+
+    progress->setAttribute(Qt::WA_DeleteOnClose);
+    connect(operation, &QThread::finished, operation, &QObject::deleteLater);
+
+    progress->show();
+}
+
+
+void files_list::move_to_trash(){
+    auto list = get_selected_files();
+
+    if(!fs::is_directory(settings.trash_directory.toStdString())){
+        std::error_code ec;
+        fs::create_directories(settings.trash_directory.toStdString(), ec);
+
+        if(ec){
+            QMessageBox::critical(this, "Error", "Cannot create trash directory");
+            return;
+        }
+    }
+
+    auto* operation = new move_operation{list, settings.trash_directory, this};
     auto* progress = new file_operation_progress{operation, list.size()};
 
     progress->setAttribute(Qt::WA_DeleteOnClose);

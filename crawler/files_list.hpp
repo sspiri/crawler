@@ -10,6 +10,8 @@
 #include <QDir>
 #include <QClipboard>
 
+#include "settings_t.hpp"
+
 
 class directory_iterator;
 
@@ -33,7 +35,9 @@ public slots:
     void copy();
     void cut();
     void paste();
+
     void remove();
+    void move_to_trash();
 
 private slots:
     void open_file(const QStringList& arguments);
@@ -51,16 +55,7 @@ private slots:
     void rename();
 
 public:
-    enum headers_mask{
-        modified =  1 << 0,
-        size =      1 << 1,
-        type =      1 << 2,
-        path =      1 << 3,
-        all = size | modified | type | path,
-    };
-
-    QDir::Filters filter{QDir::NoDotAndDotDot | QDir::AllEntries};
-    headers_mask headers{headers_mask::all};
+    settings_t settings;
 
     files_list(const QString& current, QWidget* parent);
     ~files_list();
