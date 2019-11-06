@@ -68,8 +68,8 @@ void main_window::open_settings(){
     auto* dialog = new settings_dialog{files->settings, this};
 
     if(dialog->exec() == QDialog::Accepted){
-        files->settings = dialog->get_settings();
-        files->setup_files_list();
+        dialog->set_settings();
+        files->setup_files_list(true);
     }
 
     dialog->deleteLater();

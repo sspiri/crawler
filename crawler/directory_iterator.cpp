@@ -14,9 +14,9 @@ directory_iterator::directory_iterator(QObject* parent)
 
 void directory_iterator::populate_files_list(){
     auto* parent = (files_list*)this->parent();
-    auto entries = parent->current_dir.entryInfoList(parent->settings.filter, QDir::DirsFirst);
+    auto entries = parent->current_dir.entryInfoList(parent->settings->filter, QDir::DirsFirst);
 
-    if(parent->files != entries){
+    if(force_op || parent->files != entries){
         parent->files = std::move(entries);
 
         emit row_count(parent->files.size());
@@ -48,7 +48,7 @@ void directory_iterator::populate_files_list(){
             else
                 item->setIcon(style.standardIcon(QStyle::SP_FileIcon));
 
-            if(parent->settings.headers & headers_mask::modified){
+            if(parent->settings->headers & headers_mask::modified){
                 auto datetime = info.fileTime(QFile::FileModificationTime);
 
                 if(datetime >= QDateTime::currentDateTime().addDays(-7))
@@ -60,19 +60,19 @@ void directory_iterator::populate_files_list(){
                 emit new_item(row, col++, item);
             }
 
-            if(parent->settings.headers & headers_mask::size){
+            if(parent->settings->headers & headers_mask::size){
                 item = new QTableWidgetItem{human_readable_file_size((std::uintmax_t)info.size())};
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable);
                 emit new_item(row, col++, item);
             }
 
-            if(parent->settings.headers & headers_mask::type){
+            if(parent->settings->headers & headers_mask::type){
                 item = new QTableWidgetItem{cookie.string(info.absoluteFilePath())};
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable);
                 emit new_item(row, col++, item);
             }
 
-            if(parent->settings.headers & headers_mask::path){
+            if(parent->settings->headers & headers_mask::path){
                 item = new QTableWidgetItem{info.absoluteFilePath()};
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable);
                 emit new_item(row, col++, item);

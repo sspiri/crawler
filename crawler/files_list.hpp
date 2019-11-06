@@ -11,11 +11,12 @@
 #include <QClipboard>
 
 #include "settings_t.hpp"
+#include "columns_list.hpp"
 
 
 class directory_iterator;
 
-class files_list : public QTableWidget{
+class files_list : public columns_list{
     Q_OBJECT
 
     friend class directory_iterator;
@@ -24,7 +25,7 @@ signals:
     void new_path(const QString& );
 
 public slots:
-    void setup_files_list();
+    void setup_files_list(bool force = false);
 
     void enter_directory(const QString& path);
     void enter(const QString& path);
@@ -55,7 +56,7 @@ private slots:
     void rename();
 
 public:
-    settings_t settings;
+    settings_t* settings{new settings_t{this}};
 
     files_list(const QString& current, QWidget* parent);
     ~files_list();

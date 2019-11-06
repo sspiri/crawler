@@ -12,6 +12,8 @@
 
 class settings_dialog : public QDialog{
 public:
+    settings_t* settings;
+
     QLineEdit* trash{new QLineEdit{this}};
     QCheckBox* hidden{new QCheckBox{"Show hidden files", this}};
 
@@ -24,12 +26,12 @@ public:
                * cancel{new QPushButton{"Cancel", this}};
 
 
-    settings_dialog(const settings_t& settings, QWidget* parent);
+    settings_dialog(settings_t* settings, QWidget* parent);
 
-    settings_t get_settings() const;
+    void set_settings();
 
 private:
-    void apply_settings(const settings_t& settings);
+    void apply_settings();
 
     void setup_layout();
     void setup_connections();

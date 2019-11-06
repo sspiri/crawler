@@ -26,6 +26,7 @@ SOURCES += \
         path_widget.cpp \
         search_bar.cpp \
         settings_dialog.cpp \
+        settings_t.cpp \
         utility.cpp
 
 RESOURCES +=
@@ -42,6 +43,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    columns_list.hpp \
     detail.hpp \
     directory_iterator.hpp \
     file_operation.hpp \

@@ -22,21 +22,18 @@
 
 
 files_list::files_list(const QString& current, QWidget* parent)
-    : QTableWidget{parent},
+    : columns_list{parent},
       dir_it{new directory_iterator{this}}{
 
-    setSelectionBehavior(QTableWidget::SelectRows);
+    if(!QFile::exists(settings_t::file_path))
+        settings->write();
+    else
+        settings->read();
+
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     setup_connections();
     enter_directory(current);
-
-    verticalHeader()->setVisible(false);
-    horizontalHeader()->setVisible(true);
-    horizontalHeader()->setSectionsMovable(true);
-    setHorizontalHeaderLabels({"File name"});
-
-    setShowGrid(false);
 
     timer->setSingleShot(false);
     timer->start(1000);
@@ -55,6 +52,10 @@ files_list::~files_list(){
 
 
 void files_list::setup_connections(){
+    connect(settings, &settings_t::error, [this](const QString& message){
+        QMessageBox::critical(this, "Settings error", message);
+    });
+
     connect(this, &QTableWidget::cellDoubleClicked, this, &files_list::row_double_clicked);
     connect(this, &QTableWidget::customContextMenuRequested, this, &files_list::show_context_menu);
 
@@ -253,22 +254,22 @@ void files_list::setup_columns(){
     QStringList header_names{"Name"};
     int count = 1;
 
-    if(settings.headers & headers_mask::modified){
+    if(settings->headers & headers_mask::modified){
         ++count;
         header_names.push_back("Modified");
     }
 
-    if(settings.headers & headers_mask::size){
+    if(settings->headers & headers_mask::size){
         ++count;
         header_names.push_back("Size");
     }
 
-    if(settings.headers & headers_mask::type){
+    if(settings->headers & headers_mask::type){
         ++count;
         header_names.push_back("Type");
     }
 
-    if(settings.headers & headers_mask::path){
+    if(settings->headers & headers_mask::path){
         ++count;
         header_names.push_back("Path");
     }
@@ -329,9 +330,9 @@ void files_list::cut(){
 void files_list::move_to_trash(){
     auto list = get_selected_files();
 
-    if(!fs::is_directory(settings.trash_directory.toStdString())){
+    if(!fs::is_directory(settings->trash_directory.toStdString())){
         std::error_code ec;
-        fs::create_directories(settings.trash_directory.toStdString(), ec);
+        fs::create_directories(settings->trash_directory.toStdString(), ec);
 
         if(ec){
             QMessageBox::critical(this, "Error", "Cannot create trash directory");
@@ -339,7 +340,7 @@ void files_list::move_to_trash(){
         }
     }
 
-    auto* operation = new move_operation{list, settings.trash_directory, this};
+    auto* operation = new move_operation{list, settings->trash_directory, this};
     auto* progress = new file_operation_progress{operation, list.size()};
 
     progress->setAttribute(Qt::WA_DeleteOnClose);
@@ -397,7 +398,7 @@ QStringList files_list::get_selected_files() const{
 }
 
 
-void files_list::setup_files_list(){
+void files_list::setup_files_list(bool force){
     if(dir_it->isRunning()){
         dir_it->cancel();
 
@@ -406,5 +407,6 @@ void files_list::setup_files_list(){
         } while(!dir_it->wait(0));
     }
 
+    dir_it->set_force(force);
     dir_it->start();
 }

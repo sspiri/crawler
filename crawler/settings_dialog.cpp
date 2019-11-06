@@ -6,22 +6,22 @@
 #include "settings_dialog.hpp"
 
 
-settings_dialog::settings_dialog(const settings_t& settings, QWidget* parent) : QDialog{parent}{
-    apply_settings(settings);
+settings_dialog::settings_dialog(settings_t* options, QWidget* parent) : QDialog{parent}, settings{options}{
+    apply_settings();
 
     setup_layout();
     setup_connections();
 }
 
 
-void settings_dialog::apply_settings(const settings_t& settings){
-    trash->setText(settings.trash_directory);
-    hidden->setChecked(settings.filter & QDir::Hidden);
+void settings_dialog::apply_settings(){
+    trash->setText(settings->trash_directory);
+    hidden->setChecked(settings->filter & QDir::Hidden);
 
-    modified->setChecked(settings.headers & headers_mask::modified);
-    size->setChecked(settings.headers & headers_mask::size);
-    type->setChecked(settings.headers & headers_mask::type);
-    path->setChecked(settings.headers & headers_mask::path);
+    modified->setChecked(settings->headers & headers_mask::modified);
+    size->setChecked(settings->headers & headers_mask::size);
+    type->setChecked(settings->headers & headers_mask::type);
+    path->setChecked(settings->headers & headers_mask::path);
 }
 
 
@@ -60,24 +60,28 @@ void settings_dialog::setup_connections(){
 }
 
 
-settings_t settings_dialog::get_settings() const{
-    settings_t settings;
-    settings.trash_directory = trash->text();
+void settings_dialog::set_settings(){
+    settings->trash_directory = trash->text();
 
     if(hidden->isChecked())
-        settings.filter |= QDir::Hidden;
+        settings->filter |= QDir::Hidden;
+    else
+        settings->filter &= ~QDir::Hidden;
 
-    if(!modified->isChecked())
-        settings.headers = (headers_mask)(settings.headers & ~headers_mask::modified);
+    settings->headers = (headers_mask)0;
 
-    if(!size->isChecked())
-        settings.headers = (headers_mask)(settings.headers & ~headers_mask::size);
+    if(modified->isChecked())
+        settings->headers = (headers_mask)(settings->headers | headers_mask::modified);
 
-    if(!type->isChecked())
-        settings.headers = (headers_mask)(settings.headers & ~headers_mask::type);
+    if(size->isChecked())
+        settings->headers = (headers_mask)(settings->headers | headers_mask::size);
 
-    if(!path->isChecked())
-        settings.headers = (headers_mask)(settings.headers & ~headers_mask::path);
+    if(type->isChecked())
+        settings->headers = (headers_mask)(settings->headers | headers_mask::type);
 
-    return settings;
+    if(path->isChecked())
+        settings->headers = (headers_mask)(settings->headers | headers_mask::path);
+
+
+    settings->write();
 }

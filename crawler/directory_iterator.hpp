@@ -29,6 +29,10 @@ public slots:
         cancel_op = true;
     }
 
+    void set_force(bool force){
+        force_op = force;
+    }
+
 protected:
     void run() override{
         cancel_op = false;
@@ -46,7 +50,7 @@ protected:
 
 private:
     magic_cookie cookie;
-    bool cancel_op;
+    bool cancel_op, force_op{false};
 
     void populate_files_list();
 };
