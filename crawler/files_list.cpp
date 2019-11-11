@@ -18,6 +18,7 @@
 #include "file_operation.hpp"
 #include "file_operation_progress.hpp"
 #include "utility.hpp"
+#include "main_window.hpp"
 #include "files_list.hpp"
 
 
@@ -112,8 +113,11 @@ void files_list::show_context_menu(const QPoint& point){
 
         menu->addSeparator();
 
-        if(QFileInfo{files[0]}.isDir())
+        if(QFileInfo{files[0]}.isDir()){
             connect(menu->addAction("Go to directory"), &QAction::triggered, std::bind(&files_list::enter, this, files[0]));
+            connect(menu->addAction("Open new window"), &QAction::triggered, this, &files_list::open_new_window);
+            menu->addSeparator();
+        }
 
         connect(menu->addAction("Open file..."), &QAction::triggered, std::bind(&files_list::open_file, this, QStringList{files[0]}));
     }
@@ -172,6 +176,17 @@ void files_list::create_symlinks(){
 
             progress->show();
         }
+    }
+}
+
+
+void files_list::open_new_window(){
+    auto files = get_selected_files();
+
+    if(files.size() == 1){
+        auto* new_window = new main_window{files[0]};
+        new_window->setAttribute(Qt::WA_DeleteOnClose);
+        new_window->show();
     }
 }
 

@@ -18,7 +18,6 @@ int main(int argc, char** argv) try{
     QApplication crawler{argc, argv};
 
     main_window window(argc == 1 ? QDir::homePath() : argv[1]);
-    window.resize(1200, 800);
     window.show();
 
     return crawler.exec();

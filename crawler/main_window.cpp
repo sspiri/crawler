@@ -10,6 +10,7 @@ main_window::main_window(const QString& current)
     : path{new path_widget{current, this}},
       files{new files_list{current, this}}{
 
+    resize(1200, 800);
     setCentralWidget(central);
     path->edit->setText(current);
 
