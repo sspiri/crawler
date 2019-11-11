@@ -42,6 +42,8 @@ public slots:
 
 private slots:
     void open_new_window();
+
+    void open_in_terminal(const QString& directory);
     void open_file(const QStringList& arguments);
 
     void row_double_clicked(int row, int );

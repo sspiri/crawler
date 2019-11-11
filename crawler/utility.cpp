@@ -1,8 +1,11 @@
+#include <filesystem>
 #include <iomanip>
 #include <cmath>
 
 #include "utility.hpp"
 
+
+namespace fs = std::filesystem;
 
 
 QString human_readable_file_size(std::uintmax_t bytes){
@@ -30,3 +33,25 @@ QString human_readable_file_size(std::uintmax_t bytes){
 
     return result;
 }
+
+
+QPair<QString, QStringList> get_terminal_command(const QString& file_path){
+#ifndef Q_WINDOWS
+    if(fs::is_regular_file("/usr/bin/gnome-terminal"))
+        return {"gnome-terminal", {"--working-directory=" + file_path}};
+
+    if(fs::is_regular_file("/usr/bin/xfce4-terminal"))
+        return {"xfce4-terminal", {"--working-directory=" + file_path}};
+
+    if(fs::is_regular_file("/usr/bin/konsole"))
+        return {"konsole", {"--workdir", file_path}};
+
+    if(fs::is_regular_file("/usr/bin/xterm"))
+        return {"xterm", {"-e", "cd '" + file_path + "' && { bash -i || sh -i; }"}};
+
+    return {};
+#else
+    return {"START", {file_path}};
+#endif
+}
+

@@ -93,9 +93,7 @@ void files_list::show_context_menu(const QPoint& point){
 
         menu->addSeparator();
         connect(menu->addAction("Select all"), &QAction::triggered, this, &QTableWidget::selectAll);
-
-        connect(menu->addAction("Open Terminal"), &QAction::triggered,
-                    std::bind((bool(*)(const QString&, const QStringList&))&QProcess::startDetached, "gnome-terminal", QStringList{"--working-directory=" + current_dir.absolutePath()}));
+        connect(menu->addAction("Open Terminal"), &QAction::triggered, std::bind(&files_list::open_in_terminal, this, current_dir.absolutePath()));
     }
 
     else if(files.size() == 1){
@@ -116,7 +114,9 @@ void files_list::show_context_menu(const QPoint& point){
         if(QFileInfo{files[0]}.isDir()){
             connect(menu->addAction("Go to directory"), &QAction::triggered, std::bind(&files_list::enter, this, files[0]));
             connect(menu->addAction("Open new window"), &QAction::triggered, this, &files_list::open_new_window);
+
             menu->addSeparator();
+            connect(menu->addAction("Open in Terminal"), &QAction::triggered, std::bind(&files_list::open_in_terminal, this, files[0]));
         }
 
         connect(menu->addAction("Open file..."), &QAction::triggered, std::bind(&files_list::open_file, this, QStringList{files[0]}));
@@ -134,11 +134,31 @@ void files_list::show_context_menu(const QPoint& point){
         connect(menu->addAction("Move to trash"), &QAction::triggered, this, &files_list::move_to_trash);
 
         menu->addSeparator();
+
+        if(std::all_of(files.begin(), files.end(), [](const QString& fp){ return QFileInfo{fp}.isDir(); })){
+            connect(menu->addAction("Open in Terminals"), &QAction::triggered, [this, files]{
+                for(const auto& directory : files)
+                    open_in_terminal(directory);
+            });
+        }
+
         connect(menu->addAction("Open files..."), &QAction::triggered, std::bind(&files_list::open_file, this, files));
     }
 
     menu->exec(mapToGlobal(point));
     menu->deleteLater();
+}
+
+
+void files_list::open_in_terminal(const QString& directory){
+    auto cmd = get_terminal_command(directory);
+
+    if(!cmd.first.size()){
+        QMessageBox::critical(this, "Error", "Cannot open in terminal.\nExecutable not found.");
+        return;
+    }
+
+    QProcess::startDetached(cmd.first, cmd.second);
 }
 
 
