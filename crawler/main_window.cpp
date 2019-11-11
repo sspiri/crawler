@@ -14,7 +14,7 @@ main_window::main_window(const QString& current)
     setCentralWidget(central);
     path->edit->setText(current);
 
-    splitter->addWidget(mounts);
+    splitter->addWidget(shortcuts);
     splitter->addWidget(files);
     splitter->setOrientation(Qt::Horizontal);
     splitter->setStretchFactor(1, 2);
@@ -43,8 +43,12 @@ void main_window::setup_connections(){
     connect(path->edit, &QLineEdit::returnPressed, this, &main_window::enter_if_exists);
     connect(path->go, &QPushButton::clicked, this, &main_window::enter_if_exists);
 
-    connect(mounts->list, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item){
+    connect(shortcuts->mounts->list, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item){
         files->enter_directory(item->text());
+    });
+
+    connect(shortcuts->locations->list, &QListWidget::itemDoubleClicked, [this](QListWidgetItem* item){
+        files->enter_directory(shortcuts->locations->get_locations()[item->text()]);
     });
 
     connect(new QShortcut{Qt::Key_Backspace, this}, &QShortcut::activated, files, &files_list::go_back);

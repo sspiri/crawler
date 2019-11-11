@@ -20,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         directory_iterator.cpp \
         files_list.cpp \
+        locations_list.cpp \
         main.cpp \
         main_window.cpp \
         mounts_list.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     file_operation_progress.hpp \
     files_list.hpp \
     filesystem.hpp \
+    locations_list.hpp \
     magic_cookie.hpp \
     main_window.hpp \
     mounts_list.hpp \
@@ -58,5 +60,6 @@ HEADERS += \
     search_bar.hpp \
     settings_dialog.hpp \
     settings_t.hpp \
+    shortcuts_widget.hpp \
     string_dialog.hpp \
     utility.hpp

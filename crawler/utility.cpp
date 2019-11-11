@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <cmath>
 
+#include <QStandardPaths>
+
 #include "utility.hpp"
 
 
@@ -55,3 +57,31 @@ QPair<QString, QStringList> get_terminal_command(const QString& file_path){
 #endif
 }
 
+
+QMap<QString, QString> get_standard_locations(){
+    QMap<QString, QString> results;
+    QStringList paths;
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation);
+    if(paths.size()) results.insert("Desktop", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    if(paths.size()) results.insert("Home", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    if(paths.size()) results.insert("Documents", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::MusicLocation);
+    if(paths.size()) results.insert("Music", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::MoviesLocation);
+    if(paths.size()) results.insert("Videos", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::PicturesLocation);
+    if(paths.size()) results.insert("Pictures", paths[0]);
+
+    paths = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation);
+    if(paths.size()) results.insert("Downloads", paths[0]);
+
+    return results;
+}

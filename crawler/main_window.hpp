@@ -7,7 +7,7 @@
 #include <QSplitter>
 #include <QDir>
 
-#include "mounts_list.hpp"
+#include "shortcuts_widget.hpp"
 #include "search_bar.hpp"
 #include "files_list.hpp"
 #include "path_widget.hpp"
@@ -30,7 +30,7 @@ private:
     QWidget* central{new QWidget{this}};
     search_bar* search{new search_bar{this}};
     QSplitter* splitter{new QSplitter{this}};
-    mounts_list* mounts{new mounts_list{this}};
+    shortcuts_widget* shortcuts{new shortcuts_widget{this}};
     path_widget* path;
     files_list* files;
 
