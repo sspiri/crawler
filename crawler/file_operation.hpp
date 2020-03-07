@@ -53,6 +53,8 @@ protected:
     virtual ~file_operation() {}
 
     void run() override{
+        pause_op = cancel_op = false;
+
         try{
             callback();
         }

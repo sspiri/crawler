@@ -4,6 +4,7 @@
 
 #include <map>
 
+#include <QApplication>
 #include <QWidget>
 #include <QProgressBar>
 #include <QPushButton>
@@ -38,6 +39,16 @@ public:
 
         progress->setRange(0, 100);
         operation->start();
+    }
+
+    ~file_operation_progress(){
+        if(operation && operation->isRunning()){
+            operation->cancel();
+
+            do{
+                QApplication::processEvents();
+            } while(!operation->wait(0));
+        }
     }
 
 private slots:

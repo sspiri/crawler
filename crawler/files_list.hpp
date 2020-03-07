@@ -71,7 +71,7 @@ private:
 
     QTimer* timer = new QTimer{this};
     QClipboard* clipboard{QGuiApplication::clipboard()};
-    directory_iterator* dir_it;
+    directory_iterator* dir_it{};
 
     void setup_connections();
     void setup_columns();

@@ -42,7 +42,7 @@ files_list::files_list(const QString& current, QWidget* parent)
 
 
 files_list::~files_list(){
-    if(dir_it->isRunning()){
+    if(dir_it && dir_it->isRunning()){
         dir_it->cancel();
 
         do{
