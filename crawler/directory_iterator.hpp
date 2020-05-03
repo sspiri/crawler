@@ -2,6 +2,7 @@
 #define DIRECTORY_ITERATOR_HPP
 
 
+#include <QApplication>
 #include <QMessageBox>
 #include <QTableWidgetItem>
 #include <QThread>
@@ -15,6 +16,9 @@ class directory_iterator : public QThread{
     Q_OBJECT
 
 signals:
+    void show_row(int );
+    void hide_row(int );
+
     void row_count(int );
     void setup_columns();
 
@@ -33,12 +37,34 @@ public slots:
         force_op = force;
     }
 
+    void set_recursive(bool recursive){
+        recursive_op = recursive;
+    }
+
+    void set_search(bool s, const QRegularExpression& reg = {}){
+        regex = reg;
+        search_op = s;
+    }
+
+    void join(){
+        if(isRunning()){
+            do{
+                QApplication::processEvents();
+            } while(!wait(0));
+        }
+    }
+
 protected:
     void run() override{
         cancel_op = false;
 
         try{
             populate_files_list();
+
+            if(search_op){
+                search();
+                search_op = false;
+            }
         }
 
         catch(const std::exception& err){
@@ -50,9 +76,12 @@ protected:
 
 private:
     magic_cookie cookie;
-    bool cancel_op, force_op{false};
+    QRegularExpression regex;
+    bool cancel_op, force_op{false}, recursive_op{false}, search_op{false};
 
+    QList<QFileInfo> get_file_infos();
     void populate_files_list();
+    void search();
 };
 
 

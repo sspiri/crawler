@@ -4,6 +4,10 @@
 
 void search_bar::setup_connections(){
     connect(edit, &QLineEdit::textChanged, this, &search_bar::on_changed);
+
+    connect(recursive, &QCheckBox::stateChanged, [this](int ){
+        on_changed();
+    });
 }
 
 
@@ -15,7 +19,7 @@ void search_bar::on_changed(){
         palette.setColor(QPalette::Text, Qt::black);
         edit->setPalette(palette);
 
-        emit changed_valid_regex(regex);
+        emit changed_valid_regex(regex, recursive->isChecked());
     }
 
     else{

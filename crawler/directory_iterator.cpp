@@ -1,6 +1,7 @@
 #include <QCommonStyle>
 #include <QDateTime>
 #include <QFile>
+#include <QDirIterator>
 
 #include "settings_t.hpp"
 #include "utility.hpp"
@@ -12,9 +13,36 @@ directory_iterator::directory_iterator(QObject* parent)
     : QThread{parent} {}
 
 
+QList<QFileInfo> directory_iterator::get_file_infos(){
+    auto* parent = (files_list*)this->parent();
+
+    QDirIterator it(parent->current_dir.absolutePath(), parent->settings->filter, recursive_op ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+    QList<QFileInfo> infos;
+    int nth_sym{}, nth_dir{};
+
+    while(it.hasNext()){
+        if(cancel_op)
+            throw detail::quit_exception{};
+
+        it.next();
+
+        if(it.fileInfo().isSymLink())
+            infos.insert(nth_dir + nth_sym++, it.fileInfo());
+
+        else if(it.fileInfo().isDir())
+            infos.insert(nth_dir++, it.fileInfo());
+
+        else
+            infos.push_back(it.fileInfo());
+    }
+
+    return infos;
+}
+
+
 void directory_iterator::populate_files_list(){
     auto* parent = (files_list*)this->parent();
-    auto entries = parent->current_dir.entryInfoList(parent->settings->filter, QDir::DirsFirst);
+    auto entries = get_file_infos();
 
     if(force_op || parent->files != entries){
         parent->files = std::move(entries);
@@ -87,4 +115,18 @@ void directory_iterator::populate_files_list(){
 
         emit resize_columns();
     }
+}
+
+
+void directory_iterator::search(){
+    auto* parent = (files_list*)this->parent();
+
+    for(int row=0; row < parent->files.size(); ++row){
+        if(regex.match(parent->files[row].fileName()).hasMatch())
+            emit show_row(row);
+        else
+            emit hide_row(row);
+    }
+
+    emit resize_columns();
 }

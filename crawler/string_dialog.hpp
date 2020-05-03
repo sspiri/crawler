@@ -29,7 +29,7 @@ private:
         auto* grid = new QGridLayout{};
 
         grid->addWidget(new QLabel{label, this}, 0, 0);
-        grid->addWidget(edit, 0, 1);
+        grid->addWidget(edit, 1, 0);
 
         auto* box = new QHBoxLayout{};
 
@@ -37,7 +37,7 @@ private:
         box->addWidget(ok);
         box->addWidget(cancel);
 
-        grid->addLayout(box, 1, 0, 1, 2);
+        grid->addLayout(box, 2, 0);
 
         setLayout(grid);
     }

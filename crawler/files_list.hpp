@@ -31,7 +31,7 @@ public slots:
     void enter(const QString& path);
     void go_back();
 
-    void hide_items(const QRegularExpression& regex);
+    void hide_items(const QRegularExpression& regex, bool recursive);
 
     void copy();
     void cut();

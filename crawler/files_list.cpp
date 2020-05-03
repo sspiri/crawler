@@ -42,13 +42,8 @@ files_list::files_list(const QString& current, QWidget* parent)
 
 
 files_list::~files_list(){
-    if(dir_it && dir_it->isRunning()){
-        dir_it->cancel();
-
-        do{
-            QApplication::processEvents();
-        } while(!dir_it->wait(0));
-    }
+    dir_it->cancel();
+    dir_it->join();
 }
 
 
@@ -59,6 +54,9 @@ void files_list::setup_connections(){
 
     connect(this, &QTableWidget::cellDoubleClicked, this, &files_list::row_double_clicked);
     connect(this, &QTableWidget::customContextMenuRequested, this, &files_list::show_context_menu);
+
+    connect(dir_it, &directory_iterator::show_row, this, &QTableWidget::showRow, Qt::BlockingQueuedConnection);
+    connect(dir_it, &directory_iterator::hide_row, this, &QTableWidget::hideRow, Qt::BlockingQueuedConnection);
 
     connect(dir_it, &directory_iterator::row_count, this, &QTableWidget::setRowCount, Qt::BlockingQueuedConnection);
     connect(dir_it, &directory_iterator::setup_columns, this, &files_list::setup_columns, Qt::BlockingQueuedConnection);
@@ -71,7 +69,9 @@ void files_list::setup_connections(){
             setup_files_list();
     });
 
+    connect(new QShortcut{Qt::Key_F2, this}, &QShortcut::activated, this, &files_list::rename);
     connect(new QShortcut{Qt::Key_Delete, this}, &QShortcut::activated, this, &files_list::remove);
+
     connect(new QShortcut{Qt::CTRL +  Qt::Key_C, this}, &QShortcut::activated, this, &files_list::on_copy);
     connect(new QShortcut{Qt::CTRL +  Qt::Key_X, this}, &QShortcut::activated, this, &files_list::on_cut);
     connect(new QShortcut{Qt::CTRL +  Qt::Key_V, this}, &QShortcut::activated, this, &files_list::paste);
@@ -314,13 +314,11 @@ void files_list::setup_columns(){
 }
 
 
-void files_list::hide_items(const QRegularExpression& regex){
-    for(int row=0; row < rowCount(); ++row){
-        if(regex.match(item(row, 0)->text()).hasMatch())
-            showRow(row);
-        else
-            hideRow(row);
-    }
+void files_list::hide_items(const QRegularExpression& regex, bool recursive){
+    dir_it->set_recursive(recursive);
+    dir_it->set_search(true, regex);
+
+    setup_files_list(true);
 }
 
 
@@ -436,10 +434,7 @@ QStringList files_list::get_selected_files() const{
 void files_list::setup_files_list(bool force){
     if(dir_it->isRunning()){
         dir_it->cancel();
-
-        do{
-            QApplication::processEvents();
-        } while(!dir_it->wait(0));
+        dir_it->join();
     }
 
     dir_it->set_force(force);
