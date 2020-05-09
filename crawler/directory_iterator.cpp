@@ -62,7 +62,6 @@ void directory_iterator::populate_files_list(){
 
             item = new QTableWidgetItem{info.fileName()};
             item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-            emit new_item(row, col++, item);
 
             if(info.isSymLink())
                 item->setIcon(style.standardIcon(QStyle::SP_FileLinkIcon));
@@ -75,6 +74,8 @@ void directory_iterator::populate_files_list(){
 
             else
                 item->setIcon(style.standardIcon(QStyle::SP_FileIcon));
+
+            emit new_item(row, col++, item);
 
             if(parent->settings->headers & headers_mask::modified){
                 auto datetime = info.fileTime(QFile::FileModificationTime);
