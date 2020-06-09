@@ -18,7 +18,7 @@ locations_list::locations_list(QWidget* parent) : QWidget{parent}{
 void locations_list::setup_layout(){
     auto* box = new QVBoxLayout{};
 
-    auto* label = new QLabel{"Shortcuts:", this};
+    auto* label = new QLabel{"Default Locations:", this};
 
     QFont font;
     font.setBold(true);

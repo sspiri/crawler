@@ -17,7 +17,7 @@ mounts_list::mounts_list(QWidget* parent) : QWidget{parent}{
 void mounts_list::setup_layout(){
     auto* box = new QVBoxLayout{};
 
-    auto* label = new QLabel{"Mount points:", this};
+    auto* label = new QLabel{"Mount Points:", this};
 
     QFont font;
     font.setBold(true);

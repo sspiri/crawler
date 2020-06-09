@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QSplitter>
+#include <QGroupBox>
 
 #include "locations_list.hpp"
 #include "mounts_list.hpp"
